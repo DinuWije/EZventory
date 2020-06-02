@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <ImageView
+        android:id="@+id/miniImage"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_marginStart="15dp"
+        android:layout_marginTop="15dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@mipmap/ic_launcher" />
+
+    <TextView
+        android:id="@+id/recyclerItemName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="7dp"
+        android:text="Item Name"
+        android:textSize="20sp"
+        app:layout_constraintStart_toEndOf="@+id/miniImage"
+        app:layout_constraintTop_toTopOf="@+id/miniImage" />
+
+    <TextView
+        android:id="@+id/recyclerEventName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="7dp"
+        android:text="Event Name"
+        android:textSize="12sp"
+        app:layout_constraintStart_toEndOf="@+id/miniImage"
+        app:layout_constraintTop_toBottomOf="@+id/recyclerItemName" />
+
+    <TextView
+        android:id="@+id/recyclerLocation"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="7dp"
+        android:text="Location"
+        android:textSize="12sp"
+        app:layout_constraintStart_toEndOf="@+id/miniImage"
+        app:layout_constraintTop_toBottomOf="@+id/recyclerEventName" />
+
+    <TextView
+        android:id="@+id/recyclerQuantity"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="30dp"
+        android:layout_marginBottom="-15dp"
+        android:text="Quantity"
+        android:textAlignment="center"
+        android:textSize="30sp"
+        app:layout_constraintBottom_toBottomOf="@+id/miniImage"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/miniImage" />
+
+    <TextView
+        android:id="@+id/multiplier"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="5dp"
+        android:text="x"
+        android:textAlignment="center"
+        android:textSize="30sp"
+        app:layout_constraintBottom_toBottomOf="@+id/recyclerQuantity"
+        app:layout_constraintEnd_toStartOf="@+id/recyclerQuantity"
+        app:layout_constraintTop_toTopOf="@+id/recyclerQuantity" />
+
+    <TextView
+        android:id="@+id/quantityText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Quantity"
+        android:textAlignment="center"
+        android:textSize="8sp"
+        android:layout_marginTop="-15sp"
+        app:layout_constraintEnd_toEndOf="@+id/recyclerQuantity"
+        app:layout_constraintStart_toStartOf="@+id/multiplier"
+        app:layout_constraintTop_toBottomOf="@+id/recyclerQuantity" />
+
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>
