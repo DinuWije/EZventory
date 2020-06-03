@@ -1,16 +1,16 @@
 package com.dinuw.firstapp
 
+import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.graphics.BitmapFactory
-import android.util.Log.d
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.ActivityCompat.startActivityForResult
-import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.item_row.view.*
+
 
 var productslist = MainActivity.MyVariables.filteredList
 
@@ -43,20 +43,19 @@ class MainAdapter: RecyclerView.Adapter<CustomViewHolder>(){
             val takenImage = BitmapFactory.decodeFile(picLocation)
             holder.view.miniImage?.setImageBitmap(takenImage)
         }
+
+		holder.view.setOnClickListener {
+			val intent2 = Intent(holder.view.context, ViewItemActivity::class.java)
+			intent2.putExtra("productsList", productslist)
+			intent2.putExtra("position", position)
+			holder.view.context.startActivity(intent2)
+		}
+
     }
 
 
 }
 
-
-
-class CustomViewHolder(val view: View): RecyclerView.ViewHolder(view){
-//    init{
-//        view.setOnClickListener {
-//            val intent = Intent(view.context, ViewItemActivity::class.java)
-//            intent.putExtra("productslist", productslist)
-//			MainActivity.startActivityForResult(intent, 1)
-//        }
-//    }
+class CustomViewHolder(val view: View): RecyclerView.ViewHolder(view) {
 
 }

@@ -55,11 +55,12 @@ class AddProductActivity: AppCompatActivity(), Serializable {
         }
 
         productSubmitButton.setOnClickListener {
+
             if(imageTaken){
-                val tempProduct = Product(itemID, recyclerItemName.text.toString(), schoolEvent.text.toString(), storageLocation.text.toString(), quantity.text.toString().toInt(), priceOfItem.text.toString().toDouble(), photoFile.absolutePath)
+                val tempProduct = Product(itemID, checkNull(recyclerItemName.text.toString()), checkNull(schoolEvent.text.toString()), checkNull(storageLocation.text.toString()), checkNullInt(quantity.text.toString()).toInt(), checkNullInt(priceOfItem.text.toString()).toDouble(), photoFile.absolutePath)
                 tempProductList.products.add(tempProduct)
             } else {
-                val tempProduct = Product(itemID, recyclerItemName.text.toString(), schoolEvent.text.toString(), storageLocation.text.toString(), quantity.text.toString().toInt(), priceOfItem.text.toString().toDouble(), null)
+                val tempProduct = Product(itemID, checkNull(recyclerItemName.text.toString()), checkNull(schoolEvent.text.toString()), checkNull(storageLocation.text.toString()), checkNullInt(quantity.text.toString()).toInt(), checkNullInt(priceOfItem.text.toString()).toDouble(), null)
                 tempProductList.products.add(tempProduct)
             }
             itemID++
@@ -78,6 +79,18 @@ class AddProductActivity: AppCompatActivity(), Serializable {
         }
     }
 
+	private fun checkNull(inputString: String): String {
+		if(inputString != null && inputString !=""){
+			return inputString
+		} else return "N/A"
+	}
+
+	private fun checkNullInt(inputString: String): String {
+		if(inputString != null && inputString !=""){
+			return inputString
+		} else return "0"
+	}
+
     private fun getPhotoFile(fileName: String): File{
         val storageDirectory = getExternalFilesDir(Environment.DIRECTORY_PICTURES)
         return File.createTempFile(fileName, ".jpg", storageDirectory)
@@ -93,5 +106,5 @@ class AddProductActivity: AppCompatActivity(), Serializable {
             super.onActivityResult(requestCode, resultCode, data)
         }
     }
-    
+
 }

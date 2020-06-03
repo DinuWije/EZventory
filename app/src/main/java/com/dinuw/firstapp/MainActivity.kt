@@ -37,6 +37,12 @@ class MainActivity : AppCompatActivity() {
         var picturesList = listOf<Bitmap>()
     }
 
+	object MyFunctions{
+		fun roundDouble(number: Double) : String{
+			return "%.2f".format(number)
+		}
+	}
+
     private val appConfig = AppConfig(this)
     private lateinit var sp : Spinner
     private lateinit var sp2 : Spinner
@@ -50,9 +56,9 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun updateRecycler() {
-        recyclerView.layoutManager = LinearLayoutManager(this)
-
+		recyclerView.layoutManager = LinearLayoutManager(this)
         recyclerView.addItemDecoration(DividerItemDecoration(this, DividerItemDecoration.VERTICAL))
+		recyclerView.setHasFixedSize(true)
         recyclerView.adapter = MainAdapter()
 
     }
@@ -73,6 +79,14 @@ class MainActivity : AppCompatActivity() {
         loadActivity()
         updateRecycler()
     }
+
+	override fun onRestart() {
+		super.onRestart()
+		MyVariables.filteredList.products.forEach {
+			d("Dinu", it.name)
+		}
+		addFilters()
+	}
 
 
     public override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

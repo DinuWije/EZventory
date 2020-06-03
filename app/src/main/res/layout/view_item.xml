@@ -64,22 +64,12 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:layout_constraintTop_toBottomOf="@id/itemName"
-        app:layout_constraintEnd_toStartOf="@id/itemLocation"
+		app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         android:layout_marginTop="10sp"
         android:textSize="20sp"
         android:text="Quantity" />
 
-    <TextView
-        android:id="@+id/itemLocation"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/itemName"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@id/itemQuantity"
-        android:layout_marginTop="10sp"
-        android:textSize="20sp"
-        android:text="Location" />
 
     <TextView
         android:id="@+id/itemPrice"
