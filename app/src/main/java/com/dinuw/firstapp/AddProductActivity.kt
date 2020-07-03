@@ -13,14 +13,24 @@ import android.widget.ImageView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
+import com.google.gson.GsonBuilder
 import kotlinx.android.synthetic.main.add_product.*
+import okhttp3.*
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.File
+import java.io.IOException
 import java.io.Serializable
 
-var itemID = 7
 val reqCode = 69
 private lateinit var photoFile: File
 private var FILE_NAME = ("photo")
+
+//http request info
+private const val scheme = "http"
+private const val host = "10.0.2.2"
+private const val port = 5000
+private val client = OkHttpClient()
 
 
 class AddProductActivity: AppCompatActivity(), Serializable {
@@ -31,14 +41,6 @@ class AddProductActivity: AppCompatActivity(), Serializable {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.add_product)
-        var tempProductList = ProductsData()
-        if(getIntent().getExtras() != null){
-            tempProductList = getIntent().getSerializableExtra("productsData") as ProductsData
-        }
-
-        val preferences = getSharedPreferences("database", Context.MODE_PRIVATE)
-        itemID = preferences.getInt("ItemID", 0)
-
 
         takePhoto.setOnClickListener {
             val takePictureIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
@@ -55,23 +57,43 @@ class AddProductActivity: AppCompatActivity(), Serializable {
         }
 
         productSubmitButton.setOnClickListener {
+			val tempProductDict = mutableMapOf<String, Any?>()
+			tempProductDict["name"] = checkNull(recyclerItemName.text.toString())
+			tempProductDict["event"] = checkNull(schoolEvent.text.toString())
+			tempProductDict["location"] = checkNull(storageLocation.text.toString())
+			tempProductDict["quantity"] = checkNullInt(quantity.text.toString()).toInt()
+			tempProductDict["price"] = checkNullInt(priceOfItem.text.toString()).toDouble()
+			if(imageTaken) tempProductDict["picture"] = photoFile.absolutePath
 
-            if(imageTaken){
-                val tempProduct = Product(itemID, checkNull(recyclerItemName.text.toString()), checkNull(schoolEvent.text.toString()), checkNull(storageLocation.text.toString()), checkNullInt(quantity.text.toString()).toInt(), checkNullInt(priceOfItem.text.toString()).toDouble(), photoFile.absolutePath)
-                tempProductList.products.add(tempProduct)
-            } else {
-                val tempProduct = Product(itemID, checkNull(recyclerItemName.text.toString()), checkNull(schoolEvent.text.toString()), checkNull(storageLocation.text.toString()), checkNullInt(quantity.text.toString()).toInt(), checkNullInt(priceOfItem.text.toString()).toDouble(), null)
-                tempProductList.products.add(tempProduct)
-            }
-            itemID++
+			val gson = GsonBuilder().create()
+			val jsonProductList = gson.toJson(tempProductDict)
 
-            val database = getSharedPreferences("database", Context.MODE_PRIVATE)
-            database.edit().apply{
-                putInt("ItemID", itemID)
-            }.apply()
+			val body = jsonProductList.toRequestBody("application/json".toMediaTypeOrNull())
 
-            val resultIntent = getIntent()
-            resultIntent.putExtra("productsData", tempProductList)
+			val url = HttpUrl.Builder()
+				.scheme(scheme)
+				.host(host)
+				.port(port)
+				.addPathSegment("/add_item")
+				.build()
+
+			val request = Request.Builder()
+				.post(body)
+				.url(url)
+				.build()
+
+			client.newCall(request).enqueue(object: Callback {
+				override fun onResponse(call: Call, response: Response) {
+					val body = response?.body?.string()
+					println(body)
+				}
+				override fun onFailure(call: Call, e: IOException) {
+					println("Failed to Execute Request")
+					println(e)
+				}
+			})
+
+            val resultIntent = intent
             setResult(Activity.RESULT_OK, resultIntent)
 
             finish()

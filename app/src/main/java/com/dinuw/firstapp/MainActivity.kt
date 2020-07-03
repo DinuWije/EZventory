@@ -1,30 +1,22 @@
 package com.dinuw.firstapp
 
-import android.content.Context
 import android.content.Intent
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.os.storage.StorageManager
-import android.os.storage.StorageManager.ACTION_MANAGE_STORAGE
 import android.util.Log.d
-import com.google.android.material.snackbar.Snackbar
-import androidx.appcompat.app.AppCompatActivity
-import android.view.Menu
-import android.view.MenuItem
 import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Spinner
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.getSystemService
-import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-
+import com.google.gson.GsonBuilder
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.android.synthetic.main.add_product.*
 import kotlinx.android.synthetic.main.content_main.*
+import okhttp3.*
+import java.io.IOException
 import java.util.*
 
 
@@ -32,9 +24,8 @@ class MainActivity : AppCompatActivity() {
 
 
     object MyVariables{
-        var productsD = ProductsData()
+        var productsList = ProductsData()
         var filteredList = ProductsData()
-        var picturesList = listOf<Bitmap>()
     }
 
 	object MyFunctions{
@@ -50,6 +41,7 @@ class MainActivity : AppCompatActivity() {
     private var eventSelected = "All"
     private var priceSelected = "All"
     private var photoFileNew: String? = null
+	private var names = setNames()
 
     private fun roundDouble(number: Double) : String{
         return "%.2f".format(number)
@@ -75,23 +67,25 @@ class MainActivity : AppCompatActivity() {
 
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        //d("Dinu", "Storage Space Available: ${checkStorageSpace()} Bytes")
+        println("Storage Space Available: ${checkStorageSpace()} Bytes")
+		fetchJSON()
+		//setNames()
         loadActivity()
         updateRecycler()
     }
 
 	override fun onRestart() {
 		super.onRestart()
-		MyVariables.filteredList.products.forEach {
-			d("Dinu", it.name)
-		}
+		fetchJSON()
+		//setNames()
 		addFilters()
 	}
 
 
     public override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        MyVariables.productsD = data?.getSerializableExtra("productsData") as ProductsData
+		fetchJSON()
+		//setNames()
         addFilters()
     }
 
@@ -103,7 +97,6 @@ class MainActivity : AppCompatActivity() {
 
         fab.setOnClickListener {
             intent = Intent(this, AddProductActivity::class.java)
-            intent.putExtra("productsData", MyVariables.productsD)
             startActivityForResult(intent, 1)
         }
 
@@ -114,13 +107,6 @@ class MainActivity : AppCompatActivity() {
 
         addFilters()
 
-//        val preferences = getSharedPreferences("database", Context.MODE_PRIVATE)
-//
-//        val savedName = preferences.getString("savedProductName", "This value doesn't exist")
-//        val savedOwner = preferences.getString("savedProductOwner", "This value doesn't exist")
-//        val savedYear = preferences.getString("savedProductYear", "This value doesn't exist")
-//        val savedPrice = preferences.getString("savedPrice", "This value doesn't exist")
-//        d("Dinu", "Name: $savedName \nOwner: $savedOwner\nYear: $savedYear")
     }
 
     private fun applyFilters() {
@@ -137,7 +123,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun addFilters() {
-        var names = setNames()
+		fetchJSON()
         var prices = appConfig.prices.toTypedArray()
         val adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, names)
         val adapter2 = ArrayAdapter(this, android.R.layout.simple_list_item_1, prices)
@@ -182,12 +168,7 @@ class MainActivity : AppCompatActivity() {
     private fun setNames(): Array<String> {
         var originalNames = appConfig.names.toMutableSet()
 
-        MyVariables.productsD.products.forEach {
-            originalNames.add(it.eventSchool)
-        }
-
-        var names = originalNames.toTypedArray()
-        return names
+		return originalNames.toTypedArray()
     }
 
 
@@ -199,18 +180,20 @@ class MainActivity : AppCompatActivity() {
 
         var searchPrice = 0.0
 
-        if(priceSelected == "Under $10") {
-            searchPrice = 10.0
-        }
-        else if (priceSelected == "Under $20") {
-            searchPrice = 20.0
-        }
-        else if (priceSelected == "Under $30") {
-            searchPrice = 30.0
-        }
-        else if (priceSelected == "Under $40") {
-            searchPrice = 40.0
-        }
+		when (priceSelected) {
+			"Under $10" -> {
+				searchPrice = 10.0
+			}
+			"Under $20" -> {
+				searchPrice = 20.0
+			}
+			"Under $30" -> {
+				searchPrice = 30.0
+			}
+			"Under $40" -> {
+				searchPrice = 40.0
+			}
+		}
 
         productList.forEach {
             if(it.price < searchPrice){
@@ -224,13 +207,13 @@ class MainActivity : AppCompatActivity() {
     private fun nameButton(): MutableList<Product> {
         var newProducts = mutableListOf<Product>()
         if(eventSelected != "All") {
-            MyVariables.productsD.products.toList().forEach {
-                if (it.eventSchool == eventSelected) {
+            MyVariables.productsList.products.toList().forEach {
+                if (it.event == eventSelected) {
                     newProducts.add(it)
                 }
             }
         }else {
-            newProducts = MyVariables.productsD.products.toMutableList()
+            newProducts = MyVariables.productsList.products.toMutableList()
         }
         return newProducts
     }
@@ -238,9 +221,46 @@ class MainActivity : AppCompatActivity() {
     private fun checkStorageSpace(): Long{
         val storageManager = applicationContext.getSystemService<StorageManager>()!!
         val appSpecificInternalDirUuid: UUID = storageManager.getUuidForPath(filesDir)
-        val availableBytes: Long = storageManager.getAllocatableBytes(appSpecificInternalDirUuid)
 
-        return availableBytes
+		return storageManager.getAllocatableBytes(appSpecificInternalDirUuid)
     }
 
+	private fun fetchJSON() {
+		println("Attempting to Fetch JSON")
+
+		val url = "http://10.0.2.2:5000"
+
+		val request = Request.Builder().url(url).build()
+
+		val client = OkHttpClient()
+		client.newCall(request).enqueue(object: Callback {
+			override fun onResponse(call: Call, response: Response) {
+				val body = response?.body?.string()
+				val gson = GsonBuilder().create()
+				println(body)
+
+				val importedProducts = gson.fromJson(body, Array<Product>::class.java)
+
+				MyVariables.productsList.products = importedProducts.toMutableList()
+
+				var eventNames = appConfig.names.toMutableSet()
+
+				importedProducts.forEach {
+					eventNames.add(it.event)
+					d("Dinu", it.event)
+				}
+
+				names = eventNames.toTypedArray()
+
+			}
+			override fun onFailure(call: Call, e: IOException) {
+				println("Failed to Execute Request")
+				println(e)
+			}
+		})
+
+	}
+
 }
+
+

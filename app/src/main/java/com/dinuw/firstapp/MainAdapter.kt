@@ -1,13 +1,10 @@
 package com.dinuw.firstapp
 
-import android.app.Activity
-import android.content.Context
 import android.content.Intent
 import android.graphics.BitmapFactory
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.item_row.view.*
 
@@ -30,8 +27,8 @@ class MainAdapter: RecyclerView.Adapter<CustomViewHolder>(){
 
     override fun onBindViewHolder(holder: CustomViewHolder, position: Int) {
         val name = productslist.products.get(position).name
-        val eventSchool = "Event: ${productslist.products.get(position).eventSchool}"
-        val itemLocation = "Location: ${productslist.products.get(position).storage_location}"
+        val eventSchool = "Event: ${productslist.products.get(position).event}"
+        val itemLocation = "Location: ${productslist.products.get(position).location}"
         val quantity = productslist.products.get(position).quantity.toString()
         val picLocation = productslist.products.get(position).image
 
