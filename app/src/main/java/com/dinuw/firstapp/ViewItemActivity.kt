@@ -7,7 +7,6 @@ import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.os.Environment
 import android.provider.MediaStore
-import android.util.Log.d
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
@@ -17,7 +16,6 @@ import kotlinx.android.synthetic.main.view_item.*
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody.Companion.toRequestBody
-import okhttp3.ResponseBody.Companion.create
 import java.io.File
 import java.io.IOException
 import kotlin.collections.set
@@ -33,11 +31,11 @@ class ViewItemActivity : AppCompatActivity() {
 	private var FILE_NAME = ("photo")
 	private var takenImage: Bitmap? = null
 	private var imageTaken = false
+	private val reqCode = 10
 
 	//http request info
 	private val scheme = "http"
-	private val host = "10.0.2.2"
-	private val port = 5000
+	private val host = MainActivity.MyVariables.host
 	private val client = OkHttpClient()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -86,7 +84,6 @@ class ViewItemActivity : AppCompatActivity() {
 		val url = HttpUrl.Builder()
 			.scheme(scheme)
 			.host(host)
-			.port(port)
 			.addPathSegment("/delete_item")
 			.addQueryParameter("id", id.toString())
 			.build()
@@ -94,6 +91,7 @@ class ViewItemActivity : AppCompatActivity() {
 		val request = Request.Builder()
 			.url(url)
 			.delete()
+			.header("Authorization", "Bearer "+ MainActivity.MyVariables.accessToken)
 			.build();
 
 		client.newCall(request).enqueue(object: Callback {
@@ -106,10 +104,9 @@ class ViewItemActivity : AppCompatActivity() {
 				println("Successfully Deleted")
 				val body = response?.body?.string()
 				println(body)
+				finish()
 			}
 		})
-
-		finish()
 
 	}
 
@@ -168,7 +165,6 @@ class ViewItemActivity : AppCompatActivity() {
 			val url = HttpUrl.Builder()
 				.scheme(scheme)
 				.host(host)
-				.port(port)
 				.addPathSegment("/edit_item")
 				.addQueryParameter("id", id.toString())
 				.build()
@@ -176,6 +172,7 @@ class ViewItemActivity : AppCompatActivity() {
 			val request = Request.Builder()
 				.put(body)
 				.url(url)
+				.header("Authorization", "Bearer "+ MainActivity.MyVariables.accessToken)
 				.build()
 
 			client.newCall(request).enqueue(object: Callback {
@@ -183,14 +180,13 @@ class ViewItemActivity : AppCompatActivity() {
 					println("Successfully Edited")
 					val body = response?.body?.string()
 					println(body)
+					finish()
 				}
 				override fun onFailure(call: Call, e: IOException) {
 					println("Failed to Execute Request")
 					println(e)
 				}
 			})
-
-			finish()
 
 		}
 

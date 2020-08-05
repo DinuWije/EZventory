@@ -2,6 +2,7 @@ package com.dinuw.firstapp
 
 import android.content.Intent
 import android.graphics.BitmapFactory
+import android.util.Log.d
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,7 +15,6 @@ var productslist = MainActivity.MyVariables.filteredList
 class MainAdapter: RecyclerView.Adapter<CustomViewHolder>(){
 
     //number of Items
-
     override fun getItemCount(): Int {
         return productslist.products.count()
     }
@@ -37,6 +37,7 @@ class MainAdapter: RecyclerView.Adapter<CustomViewHolder>(){
         holder.view.recyclerLocation?.text = itemLocation
         holder.view.recyclerQuantity?.text = quantity
         if (picLocation != null){
+			d("Dinu", "Here $picLocation")
             val takenImage = BitmapFactory.decodeFile(picLocation)
             holder.view.miniImage?.setImageBitmap(takenImage)
         }

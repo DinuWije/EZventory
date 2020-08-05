@@ -1,15 +1,13 @@
 package com.dinuw.firstapp
 
 import android.app.Activity
-import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.os.Environment
 import android.provider.MediaStore
-import android.util.Log.d
-import android.widget.ImageView
+import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
@@ -21,15 +19,15 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.File
 import java.io.IOException
 import java.io.Serializable
+import java.lang.Exception
 
-val reqCode = 69
+private const val reqCode = 10
 private lateinit var photoFile: File
 private var FILE_NAME = ("photo")
 
 //http request info
-private const val scheme = "http"
-private const val host = "10.0.2.2"
-private const val port = 5000
+private val scheme = "http"
+private val host = MainActivity.MyVariables.host
 private val client = OkHttpClient()
 
 
@@ -63,7 +61,12 @@ class AddProductActivity: AppCompatActivity(), Serializable {
 			tempProductDict["location"] = checkNull(storageLocation.text.toString())
 			tempProductDict["quantity"] = checkNullInt(quantity.text.toString()).toInt()
 			tempProductDict["price"] = checkNullInt(priceOfItem.text.toString()).toDouble()
-			if(imageTaken) tempProductDict["picture"] = photoFile.absolutePath
+
+			try {
+				tempProductDict["pic_location"] = photoFile.absolutePath.toString()
+			} catch(e: Exception) {
+					Log.e("dinu shitty programming", e.toString())
+			}
 
 			val gson = GsonBuilder().create()
 			val jsonProductList = gson.toJson(tempProductDict)
@@ -73,19 +76,24 @@ class AddProductActivity: AppCompatActivity(), Serializable {
 			val url = HttpUrl.Builder()
 				.scheme(scheme)
 				.host(host)
-				.port(port)
 				.addPathSegment("/add_item")
 				.build()
 
 			val request = Request.Builder()
 				.post(body)
 				.url(url)
+				.header("Authorization", "Bearer "+ MainActivity.MyVariables.accessToken)
 				.build()
 
 			client.newCall(request).enqueue(object: Callback {
 				override fun onResponse(call: Call, response: Response) {
 					val body = response?.body?.string()
 					println(body)
+
+					val resultIntent = Intent()
+					setResult(Activity.RESULT_OK, resultIntent)
+
+					finish()
 				}
 				override fun onFailure(call: Call, e: IOException) {
 					println("Failed to Execute Request")
@@ -93,24 +101,20 @@ class AddProductActivity: AppCompatActivity(), Serializable {
 				}
 			})
 
-            val resultIntent = intent
-            setResult(Activity.RESULT_OK, resultIntent)
-
-            finish()
-
         }
     }
 
 	private fun checkNull(inputString: String): String {
 		if(inputString != null && inputString !=""){
 			return inputString
-		} else return "N/A"
+		}
+		return "N/A"
 	}
 
 	private fun checkNullInt(inputString: String): String {
-		if(inputString != null && inputString !=""){
-			return inputString
-		} else return "0"
+		return if(inputString != null && inputString !=""){
+			inputString
+		} else "0"
 	}
 
     private fun getPhotoFile(fileName: String): File{
@@ -122,7 +126,6 @@ class AddProductActivity: AppCompatActivity(), Serializable {
         if (requestCode == reqCode && resultCode == Activity.RESULT_OK){
             takenImage = BitmapFactory.decodeFile(photoFile.absolutePath)
             sampleImage.setImageBitmap(takenImage)
-            d("Dinu", "${photoFile.absolutePath}")
             imageTaken = true
         } else {
             super.onActivityResult(requestCode, resultCode, data)

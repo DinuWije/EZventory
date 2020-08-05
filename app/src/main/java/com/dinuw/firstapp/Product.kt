@@ -15,6 +15,6 @@ data class Product (
 	@SerializedName("location") var location: String,
 	@SerializedName("quantity") var quantity: Int,
 	@SerializedName("price") var price: Double,
-	@SerializedName("image") var image: String?
+	@SerializedName("picture") var image: String?
 
 ) : Serializable

@@ -6,8 +6,4 @@ class ProductsData  : Serializable {
 
     var products = mutableListOf<Product>()
 
-    fun allProducts(): MutableList<Product>{
-        return products
-    }
-
 }
