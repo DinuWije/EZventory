@@ -65,7 +65,7 @@ class AddProductActivity: AppCompatActivity(), Serializable {
 			try {
 				tempProductDict["pic_location"] = photoFile.absolutePath.toString()
 			} catch(e: Exception) {
-					Log.e("dinu shitty programming", e.toString())
+					Log.e("exception", e.toString())
 			}
 
 			val gson = GsonBuilder().create()
