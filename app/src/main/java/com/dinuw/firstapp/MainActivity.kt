@@ -137,7 +137,7 @@ class MainActivity : AppCompatActivity() {
 	private fun getPrice(){
 		productsTextView.text = ""
 		totalCost = 0.0
-		MyVariables.filteredList.products.forEach{
+		MyVariables.filteredList.products.forEach<Product>{
 			totalCost+=it.price
 		}
 		lastSavedProduct.text = "$${roundDouble(totalCost)}"
