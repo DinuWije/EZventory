@@ -1,5 +1,6 @@
 # EZventory
-An Inventory management app for small organizations!
+An Inventory management app for small organizations! [Download the app onto your Android device from the Google Play Store.](https://play.google.com/store/apps/details?id=com.dinuw.firstapp)
+
 
 ## Backend Description
 
