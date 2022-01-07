@@ -1,5 +1,5 @@
 # EZventory
-An Inventory management app for small organizations! [Download the app onto your Android device from the Google Play Store.](https://play.google.com/store/apps/details?id=com.dinuw.firstapp)
+An Inventory management app for small organizations! Orginally built for my former high school's student council. [Download the app onto your Android device from the Google Play Store.](https://play.google.com/store/apps/details?id=com.dinuw.firstapp)
 
 
 ## Backend Description
@@ -9,7 +9,7 @@ The REST API Backend includes a web server created with Python/Flask and a MYSQL
 The database and web server were containerized with Docker and are currently hosted on an AWS EC2 instance.
 
 ### Architecture Diagram
-![EZventory Diagram](https://user-images.githubusercontent.com/50289930/132991052-c8288757-2a0a-40a5-a82c-1f778340d8c0.jpeg)
+![EZventory Diagram](https://user-images.githubusercontent.com/50289930/148472991-4e838300-ef7e-400e-a6dd-12a6fd3b21c9.png)
 
 ### Demo!
 Use Swagger to [try a brief demo](https://image-repo-2021.herokuapp.com/) of image upload/download endpoints (give 30s for the Heroku demo instance to spin up)! For full functionality tests, download the app from [Google Play Store](https://play.google.com/store/apps/details?id=com.dinuw.firstapp)!
